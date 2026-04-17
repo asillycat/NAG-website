@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+        content="NAG-based Ranking: Target-Oriented Pretraining Data Selection via Neuron-Activated Graph">
+  <meta name="keywords" content="NAG, Neuron-Activated Graph, LLM Pretraining, Data Selection, Interpretability">
+  <title>NAG: Target-Oriented Pretraining Data Selection via Neuron-Activated Graph</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            Target-Oriented Pretraining Data Selection<br>
+            via <span class="nag-highlight">Neuron-Activated Graph</span>
+          </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://asillycat.github.io/">Zijun Wang</a><sup>1,2</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.haqtu.me/">Haoqin Tu</a><sup>2</sup>,</span>
+            <span class="author-block">
+              Weidong Zhou<sup>1</sup>,</span>
+            <span class="author-block">
+              Yiyang Zhou<sup>3</sup>,</span>
+            <span class="author-block">
+              Xiaohuan Zhou<sup>1</sup>,</span>
+            <br>
+            <span class="author-block">
+              Bingni Zhang<sup>1</sup>,</span>
+            <span class="author-block">
+              Weiguo Feng<sup>1</sup>,</span>
+            <span class="author-block">
+              Taifeng Wang<sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://cihangxie.github.io/">Cihang Xie</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=T3EjsaAAAAAJ&hl=en">Fengze Liu</a><sup>1</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>ByteDance, </span>
+            <span class="author-block"><sup>2</sup>UC Santa Cruz, </span>
+            <span class="author-block"><sup>3</sup>UNC-Chapel Hill</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- arXiv Link -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link -->
+              <span class="link-block">
+                <a href="https://github.com/asillycat/NAG"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <!-- BibTeX Link -->
+              <span class="link-block">
+                <a href="#BibTeX"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-quote-left"></i>
+                  </span>
+                  <span>BibTeX</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body" style="text-align: center;">
+      <img src="./static/images/teaser.png" alt="NAG teaser"
+           style="width: 95%; object-fit: contain;">
+      <h2 class="subtitle has-text-centered" style="margin-top: 1.2rem;">
+        General quality-based data selection is often misaligned with specific downstream capabilities
+        (<i>left</i>), while prior target-oriented methods rely on shallow similarity to target examples
+        (<i>middle left</i>). Our <b>NAG</b> instead aligns pretraining data with target tasks by selecting
+        inputs that activate similar neurons in the LLM, capturing the underlying capability required for
+        the target (<i>middle right</i>), even across different domains (<i>e.g.</i>, economics vs. math).
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<!-- Highlights / Stats -->
+<section class="section" style="padding-top: 1rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-3 has-text-centered">
+        <div class="stat-card">
+          <div class="stat-number">+4.9%</div>
+          <div class="stat-label">avg. gain over Random</div>
+        </div>
+      </div>
+      <div class="column is-3 has-text-centered">
+        <div class="stat-card">
+          <div class="stat-number">+5.3%</div>
+          <div class="stat-label">over SOTA on HellaSwag</div>
+        </div>
+      </div>
+      <div class="column is-3 has-text-centered">
+        <div class="stat-card">
+          <div class="stat-number">0.12%</div>
+          <div class="stat-label">neurons → 23.5% drop</div>
+        </div>
+      </div>
+      <div class="column is-3 has-text-centered">
+        <div class="stat-card">
+          <div class="stat-number">Training-Free</div>
+          <div class="stat-label">interpretable signal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Everyday tasks come with a target, and pretraining models around this target is what turns
+            them into experts. In this paper, we study target-oriented language model (LM) pretraining
+            by introducing <b>Neuron-Activated Graph Ranking</b> (<b>NAG-based Ranking</b>), a
+            <em>training-free</em> and <em>interpretable</em> framework for target pretraining data
+            selection. Rather than using black-box representations, our approach directly characterizes
+            each target input by a sparse set of high-impact neurons in any off-the-shelf LLMs.
+          </p>
+          <p>
+            Concretely, we quantify neuron impact and select the most influential neurons across layers
+            into a compact <b>Neuron-Activated Graph (NAG)</b>, and rank candidate data by NAG similarity
+            to target examples. We conduct experiments across six benchmarks, where our NAG-based Ranking
+            improves target-oriented pretraining by <b>4.9%</b> on average over random sampling, and also
+            outperforms state-of-the-art baselines by <b>5.3%</b> accuracy on HellaSwag. It also remains
+            effective under a more applicable multi-target setting, where our best setup surpasses two
+            baselines by 1.1% and 4.1%, respectively.
+          </p>
+          <p>
+            Furthermore, we provide a comprehensive analysis on <em>why</em> and <em>how</em> our NAG
+            works. For example, deactivating NAG-selected neurons (only 0.12% of all) causes a
+            <b>23.5%</b> performance collapse, and restricting NAG to the final layer incurs a
+            <b>4.1%</b> average drop, indicating that NAG captures a sparse "functional backbone" for
+            learning target features.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Pipeline -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Pipeline</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/pipeline.png" alt="NAG pipeline" style="width: 100%;">
+          <div class="content has-text-justified" style="margin-top: 1rem;">
+            <p>
+              Given a small set of <strong>target examples</strong>, we run them through a frozen
+              off-the-shelf LLM, score the impact of every neuron, and keep the top-<em>K</em> per
+              layer to form a compact <strong>NAG</strong> for each input. The target NAGs are
+              aggregated into a per-layer neuron-activation profile. Every <strong>candidate
+              document</strong> in the pretraining pool gets its own NAG and is ranked by its
+              similarity to the target profile; the top-<em>r<sub>f</sub></em> fraction is then
+              selected for LLM pretraining.
+            </p>
+          </div>
+          <div class="findings-box">
+            <p><strong>Key Idea:</strong> Inputs that engage similar neurons in an LLM share similar
+              task-relevant capabilities &mdash; so neuron co-activation is a direct, interpretable
+              signal for picking pretraining data that matches a target.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Main Results -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Main Results</h2>
+        <h2 class="title is-5" style="margin-top: -0.5rem; color: #555;">
+          NAG-based Ranking consistently improves target performance across six benchmarks
+        </h2>
+
+        <div class="table-container" style="margin-top: 1.5rem;">
+          <table class="table is-bordered is-striped is-hoverable is-fullwidth result-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>ARC-C</th>
+                <th>HellaSwag</th>
+                <th>TriviaQA</th>
+                <th>MMLU</th>
+                <th>XStoryCloze</th>
+                <th>XWinograd</th>
+                <th>Avg.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Random</td>
+                <td>28.5</td>
+                <td>51.6</td>
+                <td>15.6</td>
+                <td>30.2</td>
+                <td>67.1</td>
+                <td>76.5</td>
+                <td>44.9</td>
+              </tr>
+              <tr>
+                <td>FineWeb-Edu</td>
+                <td><u>34.3</u><span class="d-red">+5.8</span></td>
+                <td>55.3<span class="d-red">+3.7</span></td>
+                <td>20.1<span class="d-red">+4.5</span></td>
+                <td><b>32.8</b><span class="d-red">+2.6</span></td>
+                <td>65.9<span class="d-blue">&minus;1.2</span></td>
+                <td>76.2<span class="d-gray">&minus;0.3</span></td>
+                <td>47.4<span class="d-red">+2.5</span></td>
+              </tr>
+              <tr class="section-row"><td colspan="8">Single-Target</td></tr>
+              <tr>
+                <td>BETR</td>
+                <td>32.3<span class="d-red">+3.8</span></td>
+                <td>57.5<span class="d-red">+5.9</span></td>
+                <td>20.2<span class="d-red">+4.6</span></td>
+                <td>31.1<span class="d-red">+0.9</span></td>
+                <td class="shade"><b>71.0</b><span class="d-red">+3.9</span></td>
+                <td class="shade"><b>80.7</b><span class="d-red">+4.2</span></td>
+                <td>48.8<span class="d-red">+3.9</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>Qwen3-1.7B</sub></td>
+                <td>34.0<span class="d-red">+5.5</span></td>
+                <td class="shade"><b>60.6</b><span class="d-red">+9.0</span></td>
+                <td><u>22.3</u><span class="d-red">+6.7</span></td>
+                <td class="shade"><u>32.2</u><span class="d-red">+2.0</span></td>
+                <td>70.0<span class="d-red">+2.9</span></td>
+                <td>80.1<span class="d-red">+3.6</span></td>
+                <td><u>49.8</u><span class="d-red">+4.9</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>Llama-3.2-3B</sub></td>
+                <td class="shade"><b>35.0</b><span class="d-red">+6.5</span></td>
+                <td>58.6<span class="d-red">+7.0</span></td>
+                <td>21.3<span class="d-red">+5.7</span></td>
+                <td>31.5<span class="d-red">+1.3</span></td>
+                <td><u>70.8</u><span class="d-red">+3.7</span></td>
+                <td><u>80.6</u><span class="d-red">+4.1</span></td>
+                <td>49.6<span class="d-red">+4.7</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>SmolLM3-3B</sub></td>
+                <td class="shade"><b>35.0</b><span class="d-red">+6.5</span></td>
+                <td><u>59.8</u><span class="d-red">+8.2</span></td>
+                <td class="shade"><b>22.6</b><span class="d-red">+7.0</span></td>
+                <td>31.2<span class="d-red">+1.0</span></td>
+                <td>70.5<span class="d-red">+3.4</span></td>
+                <td><u>80.6</u><span class="d-red">+4.1</span></td>
+                <td class="shade"><b>49.9</b><span class="d-red">+5.0</span></td>
+              </tr>
+              <tr class="section-row"><td colspan="8">Multi-Target</td></tr>
+              <tr>
+                <td>BETR</td>
+                <td>30.3<span class="d-red">+1.8</span></td>
+                <td>49.3<span class="d-blue">&minus;2.3</span></td>
+                <td>11.6<span class="d-blue">&minus;4.0</span></td>
+                <td>29.9<span class="d-gray">&minus;0.3</span></td>
+                <td>69.5<span class="d-red">+2.4</span></td>
+                <td>76.1<span class="d-gray">&minus;0.4</span></td>
+                <td>44.4<span class="d-gray">&minus;0.5</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>Qwen3-1.7B</sub></td>
+                <td class="shade">33.4<span class="d-red">+4.9</span></td>
+                <td class="shade">57.8<span class="d-red">+6.2</span></td>
+                <td>19.2<span class="d-red">+3.6</span></td>
+                <td class="shade">31.5<span class="d-red">+1.3</span></td>
+                <td>69.3<span class="d-red">+2.2</span></td>
+                <td>79.9<span class="d-red">+3.4</span></td>
+                <td class="shade">48.5<span class="d-red">+3.6</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>Llama-3.2-3B</sub></td>
+                <td>32.0<span class="d-red">+3.5</span></td>
+                <td>54.9<span class="d-red">+3.3</span></td>
+                <td>18.0<span class="d-red">+2.4</span></td>
+                <td>31.4<span class="d-red">+1.2</span></td>
+                <td class="shade">69.8<span class="d-red">+2.7</span></td>
+                <td>79.9<span class="d-red">+3.4</span></td>
+                <td>47.6<span class="d-red">+2.7</span></td>
+              </tr>
+              <tr>
+                <td>NAG<sub>SmolLM3-3B</sub></td>
+                <td>31.8<span class="d-red">+3.3</span></td>
+                <td>55.2<span class="d-red">+3.6</span></td>
+                <td class="shade">19.9<span class="d-red">+4.3</span></td>
+                <td>30.6<span class="d-gray">+0.4</span></td>
+                <td>69.2<span class="d-red">+2.1</span></td>
+                <td class="shade">80.2<span class="d-red">+3.7</span></td>
+                <td>47.8<span class="d-red">+2.9</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.82rem; color: #666; margin-top: 0.4rem; text-align: left;">
+            <b>Bold</b> = best overall, <u>underline</u> = second overall, <span style="background-color:#e8e8e8;padding:1px 4px;">shade</span> = best within Single-/Multi-Target setting. Subscripts are deltas vs. <i>Random</i> (<span class="d-red" style="font-size:0.85em;">red</span> for gains, <span class="d-blue" style="font-size:0.85em;">blue</span> for drops).
+          </p>
+        </div>
+
+        <div class="findings-box">
+          <p><strong>Observation 1:</strong> NAG-based Ranking yields a <b>+4.9%</b> average gain over
+            Random and beats both quality-focused (FineWeb-Edu, +2.4%) and target-oriented (BETR, +1.0%)
+            baselines, with <b>+5.3%</b> on HellaSwag.</p>
+        </div>
+        <div class="findings-box">
+          <p><strong>Observation 2:</strong> The gain is robust across backbone models (+4.7% to +5.0%)
+            and remains effective under the more challenging Multi-Target setting, where BETR drops
+            -4.4% but NAG still gains <b>+3.6%</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Combining with FineWeb-Edu -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-4">NAG Complements Existing Quality Signals</h2>
+        <div class="table-container">
+          <table class="table is-bordered is-striped is-hoverable is-fullwidth result-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>ARC-C</th>
+                <th>HellaSwag</th>
+                <th>TriviaQA</th>
+                <th>MMLU</th>
+                <th>XStoryCloze</th>
+                <th>XWinograd</th>
+                <th>Avg.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FineWeb-Edu</td>
+                <td>34.3</td>
+                <td>55.3</td>
+                <td>20.1</td>
+                <td>32.8</td>
+                <td>65.9</td>
+                <td>76.2</td>
+                <td>47.4</td>
+              </tr>
+              <tr>
+                <td>+ NAG<sub>Qwen3-1.7B</sub></td>
+                <td>35.3<span class="d-red">+1.0</span></td>
+                <td>57.7<span class="d-red">+2.4</span></td>
+                <td>21.7<span class="d-red">+1.6</span></td>
+                <td>32.5<span class="d-gray">&minus;0.3</span></td>
+                <td>67.2<span class="d-red">+1.3</span></td>
+                <td class="shade">79.2<span class="d-red">+3.0</span></td>
+                <td>48.9<span class="d-red">+1.5</span></td>
+              </tr>
+              <tr>
+                <td>+ NAG<sub>Llama-3.2-3B</sub></td>
+                <td>35.2<span class="d-red">+0.9</span></td>
+                <td>57.4<span class="d-red">+2.1</span></td>
+                <td>21.7<span class="d-red">+1.6</span></td>
+                <td>32.7<span class="d-gray">&minus;0.1</span></td>
+                <td>68.2<span class="d-red">+2.3</span></td>
+                <td>78.6<span class="d-red">+2.4</span></td>
+                <td>49.0<span class="d-red">+1.6</span></td>
+              </tr>
+              <tr>
+                <td>+ NAG<sub>SmolLM3-3B</sub></td>
+                <td class="shade">35.7<span class="d-red">+1.4</span></td>
+                <td class="shade">58.1<span class="d-red">+2.8</span></td>
+                <td class="shade">22.7<span class="d-red">+2.6</span></td>
+                <td class="shade">33.1<span class="d-gray">+0.3</span></td>
+                <td class="shade">69.0<span class="d-red">+3.1</span></td>
+                <td>78.9<span class="d-red">+2.7</span></td>
+                <td class="shade">49.6<span class="d-red">+2.2</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.82rem; color: #666; margin-top: 0.4rem; text-align: left;">
+            <span style="background-color:#e8e8e8;padding:1px 4px;">shade</span> = best per column. Subscripts are deltas vs. <i>FineWeb-Edu</i>.
+          </p>
+        </div>
+        <div class="findings-box">
+          <p><strong>Observation 3:</strong> Adding NAG signals on top of FineWeb-Edu further boosts
+            average accuracy by <b>+1.8%</b>, indicating NAG captures information complementary to
+            general-quality scores.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Why NAG Works -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Why NAG Works</h2>
+      </div>
+    </div>
+
+    <!-- Sparse functional backbone -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">A Sparse Functional Backbone</h2>
+        <div class="table-container">
+          <table class="table is-bordered is-striped is-hoverable is-fullwidth result-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>ARC-C</th>
+                <th>HellaSwag</th>
+                <th>TriviaQA</th>
+                <th>MMLU</th>
+                <th>XStoryCloze</th>
+                <th>XWinograd</th>
+                <th>Avg.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Qwen3-1.7B-Base</td>
+                <td>55.7</td>
+                <td>66.9</td>
+                <td>36.3</td>
+                <td>45.9</td>
+                <td>72.4</td>
+                <td>86.5</td>
+                <td>60.6</td>
+              </tr>
+              <tr class="section-row"><td colspan="8">Deactivate 20 neurons per layer (0.12%)</td></tr>
+              <tr>
+                <td>Deactivate Random</td>
+                <td>55.5<span class="d-gray">&minus;0.2</span></td>
+                <td>66.8<span class="d-gray">&minus;0.1</span></td>
+                <td>35.8<span class="d-gray">&minus;0.5</span></td>
+                <td>45.8<span class="d-gray">&minus;0.1</span></td>
+                <td>72.4<span class="d-gray">&minus;0.0</span></td>
+                <td>85.9<span class="d-blue">&minus;0.6</span></td>
+                <td>60.4<span class="d-gray">&minus;0.2</span></td>
+              </tr>
+              <tr>
+                <td>Deactivate NAG</td>
+                <td>30.4<span class="d-blue">&minus;25.3</span></td>
+                <td>45.6<span class="d-blue">&minus;21.3</span></td>
+                <td>0.3<span class="d-blue">&minus;36.0</span></td>
+                <td>29.1<span class="d-blue">&minus;16.8</span></td>
+                <td>56.9<span class="d-blue">&minus;15.5</span></td>
+                <td>60.6<span class="d-blue">&minus;25.9</span></td>
+                <td>37.1<span class="d-blue">&minus;23.5</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.82rem; color: #666; margin-top: 0.4rem; text-align: left;">
+            Subscripts are performance drops relative to the original Qwen3-1.7B-Base
+            (<span class="d-blue" style="font-size:0.85em;">blue</span> for drops,
+            <span class="d-gray" style="font-size:0.85em;">gray</span> for negligible).
+          </p>
+        </div>
+        <div class="findings-box">
+          <p><strong>Observation 4:</strong> Deactivating just <b>0.12%</b> NAG-selected neurons
+            triggers a <b>23.5%</b> performance collapse, while deactivating the same number of random
+            neurons has near-zero effect &mdash; NAG isolates a sparse <em>functional backbone</em> in
+            the LLM.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- t-SNE -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">A Task-Discriminative Representation</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/tsne.png" alt="t-SNE of NAG" style="width: 80%;">
+          <div class="content has-text-justified" style="margin-top: 0.8rem;">
+            <p>
+              t-SNE visualization of NAG-based representations across ten datasets. Clusters align
+              tightly with task identity, and their relative positions reflect task relevance
+              (<i>e.g.</i>, MathQA and GSM8K cluster near each other yet far from XNLI).
+            </p>
+          </div>
+          <div class="findings-box">
+            <p><strong>Observation 5:</strong> NAG features form clean task-level clusters, evidencing
+              that they encode <em>task-discriminative</em> structure rather than surface lexical
+              similarity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter rate -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">A Utility-Aligned Ranking</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/filterate.png" alt="Filter rate" style="width: 75%;">
+          <div class="content has-text-justified" style="margin-top: 0.8rem;">
+            <p>
+              Performance under varying filtering rates <em>r<sub>f</sub></em>. As <em>r<sub>f</sub></em>
+              decreases (only the highest-ranked data is kept), Random and BETR degrade, while NAG
+              <em>improves</em>, peaking at <em>r<sub>f</sub></em> = 5% with a <b>+1.8%</b> additional
+              gain.
+            </p>
+          </div>
+          <div class="findings-box">
+            <p><strong>Observation 6:</strong> NAG's induced ranking is tightly aligned with downstream
+              task utility &mdash; aggressive filtering of low-ranked samples actually improves
+              accuracy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- How NAG Operates -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">How NAG Operates</h2>
+      </div>
+    </div>
+
+    <!-- Neuron type -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">Best with FFN UP-projection Neurons</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/neuron_type.png" alt="Neuron type" style="width: 70%;">
+          <div class="content has-text-justified" style="margin-top: 0.8rem;">
+            <p>
+              <code>up_proj</code> neurons (60.6%) clearly beat residual-interface projections like
+              <code>down_proj</code> (58.0%) and <code>k_proj</code> (56.7%), suggesting expansion
+              layers in higher-dimensional latent space best isolate task-specific signals.
+            </p>
+          </div>
+          <div class="findings-box">
+            <p><strong>Observation 7:</strong> NAG works best when constructed from FFN
+              <code>up_proj</code> neurons &mdash; the high-dimensional expansion latent space exposes
+              task-discriminative activation patterns that compressed residual-stream projections
+              (<code>down_proj</code>, <code>k_proj</code>) wash out.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All vs last layer -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">Aggregating Signals Across All Layers Matters</h2>
+        <div class="table-container">
+          <table class="table is-bordered is-striped is-hoverable is-fullwidth result-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>ARC-C</th>
+                <th>HellaSwag</th>
+                <th>TriviaQA</th>
+                <th>MMLU</th>
+                <th>XStoryCloze</th>
+                <th>XWinograd</th>
+                <th>Avg.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>NAG<sub>All Layer</sub></td>
+                <td>34.0</td>
+                <td>60.6</td>
+                <td>22.3</td>
+                <td>32.2</td>
+                <td>70.0</td>
+                <td>80.1</td>
+                <td>49.8</td>
+              </tr>
+              <tr>
+                <td>NAG<sub>Last Layer</sub></td>
+                <td>30.5<span class="d-blue">&minus;3.5</span></td>
+                <td>55.2<span class="d-blue">&minus;5.4</span></td>
+                <td>15.1<span class="d-blue">&minus;7.2</span></td>
+                <td>29.9<span class="d-blue">&minus;2.3</span></td>
+                <td>67.8<span class="d-blue">&minus;2.2</span></td>
+                <td>75.5<span class="d-blue">&minus;4.6</span></td>
+                <td>45.7<span class="d-blue">&minus;4.1</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.82rem; color: #666; margin-top: 0.4rem; text-align: left;">
+            Subscripts are deltas vs. <i>NAG<sub>All Layer</sub></i>
+            (<span class="d-blue" style="font-size:0.85em;">blue</span> for drops).
+          </p>
+        </div>
+        <div class="findings-box">
+          <p><strong>Observation 8:</strong> Restricting NAG to the final layer incurs a <b>-4.1%</b>
+            drop &mdash; task-relevant signals are <em>distributed across all layers</em>, not just
+            the top.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sparsity -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 1.5rem;">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">A Highly Sparse Set of Neurons Is Enough</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/nag_width.png" alt="NAG width" style="width: 75%;">
+          <div class="content has-text-justified" style="margin-top: 0.8rem;">
+            <p>
+              Performance peaks at <em>r<sub>k</sub> &asymp; 0.3%</em> across model scales (1.7B, 4B, 8B).
+              Increasing sparsity 7&times; brings little extra gain, confirming the most competent
+              task-relevant signals are concentrated in a very sparse set of high-impact neurons.
+            </p>
+          </div>
+          <div class="findings-box">
+            <p><strong>Observation 9:</strong> NAG concentrates into roughly <b>0.3%</b> of neurons per
+              layer, and larger LLMs yield more discriminative neurons under the same sparsity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{wang2026nag,
+  title   = {Target-Oriented Pretraining Data Selection via Neuron-Activated Graph},
+  author  = {Wang, Zijun and Tu, Haoqin and Zhou, Weidong and Zhou, Yiyang and
+             Zhou, Xiaohuan and Zhang, Bingni and Feng, Weiguo and Wang, Taifeng and
+             Xie, Cihang and Liu, Fengze},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8 has-text-centered">
+        <div class="content">
+          <p>
+            Based on the <a href="https://nerfies.github.io">Nerfies</a> template.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
